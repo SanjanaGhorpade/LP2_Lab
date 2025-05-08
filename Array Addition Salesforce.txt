@@ -1,0 +1,65 @@
+Array Addition Salesforce
+
+<apex:page controller="ArrayAddController">
+    <apex:form >
+        <apex:pageBlock title="Array Addition">
+            <apex:pageBlockSection title="Input Arrays" columns="1">
+                <apex:outputLabel value="Enter Array A (e.g. 1,2,3):"/>
+                <apex:inputText value="{!arrayA}" style="width:100%"/>
+
+                <apex:outputLabel value="Enter Array B (e.g. 4,5,6):"/>
+                <apex:inputText value="{!arrayB}" style="width:100%"/>
+            </apex:pageBlockSection>
+
+            <apex:commandButton value="Add Arrays" action="{!addArrays}" />
+
+            <apex:pageBlockSection title="Result" rendered="{!NOT(ISNULL(result))}">
+                <apex:outputText value="{!result}"/>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>
+
+public class ArrayAddController 
+{
+    public String arrayA {get;set;}
+    public String arrayB {get;set;}
+    public String result {get;set;}
+    
+    public ArrayAddController()
+    {
+        arrayA = '';
+    	arrayB = '';
+     	result = '';
+    }
+    
+    public List<Decimal> parseArray(String input)
+    {
+        List<Decimal> arr = new List<Decimal>();
+        List<String> ip = input.trim().split(',');
+        for(String el : ip)
+        {
+            arr.add(Decimal.valueOf(el.trim()));
+        }
+        return arr;
+    }
+    
+    public void addArrays()
+    {
+        List<Decimal> A = parseArray(arrayA);
+        List<Decimal> B = parseArray(arrayB);
+        
+        if(A.size() != B.size())
+        {
+            result = 'Size has to equal';
+            return;       
+        }
+        List<Decimal> C = new List<Decimal> ();
+        for(Integer i = 0; i < A.size() ; i++)
+        {
+            C.add(A[i]+B[i]);
+            result += ' ' + C[i] + ' ';
+        }
+         
+    }
+}
