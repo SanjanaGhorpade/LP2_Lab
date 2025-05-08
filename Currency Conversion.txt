@@ -1,0 +1,71 @@
+Currency Conversion
+
+<apex:page controller="CurrencyConverterController">
+    <apex:form>
+        <apex:pageBlock title="Currency Converter">
+            <apex:pageBlockSection columns="1">
+                <apex:outputLabel value="Enter Amount:" />
+                <apex:inputText value="{!amount}" />
+
+                <apex:outputLabel value="From Currency:" />
+                <apex:selectList value="{!fromCurrency}" size="1">
+                    <apex:selectOptions value="{!currencies}" />
+                </apex:selectList>
+
+                <apex:outputLabel value="To Currency:" />
+                <apex:selectList value="{!toCurrency}" size="1">
+                    <apex:selectOptions value="{!currencies}" />
+                </apex:selectList>
+            </apex:pageBlockSection>
+
+            <apex:commandButton value="Convert" action="{!convertCurrency}" />
+
+            <apex:pageBlockSection title="Result" rendered="{!NOT(ISNULL(result))}">
+                <apex:outputText value="{!result}" />
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>
+
+public class CurrencyConverterController {
+    public String amount { get; set; }
+    public String fromCurrency { get; set; }
+    public String toCurrency { get; set; }
+    public String result { get; set; }
+
+    // Static exchange rates (mock values)
+    public static Map<String, Decimal> exchangeRatesToUSD = new Map<String, Decimal>{
+        'USD' => 1,
+        'INR' => 0.012, // 1 INR = 0.012 USD
+        'EUR' => 1.1,   // 1 EUR = 1.1 USD
+        'JPY' => 0.0068 // 1 JPY = 0.0068 USD
+    };
+
+    public List<SelectOption> getCurrencies() {
+        return new List<SelectOption>{
+            new SelectOption('USD', 'USD'),
+            new SelectOption('INR', 'INR'),
+            new SelectOption('EUR', 'EUR'),
+            new SelectOption('JPY', 'JPY')
+        };
+    }
+
+    public void convertCurrency() {
+        try {
+            Decimal amt = Decimal.valueOf(amount);
+            if (!exchangeRatesToUSD.containsKey(fromCurrency) || !exchangeRatesToUSD.containsKey(toCurrency)) {
+                result = 'Unsupported currency.';
+                return;
+            }
+
+            // Convert from source to USD, then USD to target
+            Decimal amountInUSD = amt * exchangeRatesToUSD.get(fromCurrency);
+            Decimal convertedAmount = amountInUSD / exchangeRatesToUSD.get(toCurrency);
+
+            result = amount + ' ' + fromCurrency + ' = ' +
+                     String.valueOf(convertedAmount.setScale(2)) + ' ' + toCurrency;
+        } catch (Exception e) {
+            result = 'Error: ' + e.getMessage();
+        }
+    }
+}
