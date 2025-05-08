@@ -1,0 +1,58 @@
+Simple and Compound Interest
+
+<apex:page controller="InterestCalculatorController">
+    <apex:form>
+        <apex:pageBlock title="Interest Calculator">
+            <apex:pageBlockSection columns="1">
+                <apex:outputLabel value="Principal Amount:" />
+                <apex:inputText value="{!principal}" />
+
+                <apex:outputLabel value="Rate of Interest (% per annum):" />
+                <apex:inputText value="{!rate}" />
+
+                <apex:outputLabel value="Time (in years):" />
+                <apex:inputText value="{!time}" />
+            </apex:pageBlockSection>
+
+            <apex:commandButton value="Calculate SI & CI" action="{!calculateInterest}" />
+
+            <apex:pageBlockSection title="Results" rendered="{!NOT(ISNULL(result))}">
+                <apex:outputText value="{!result}" />
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>
+
+
+public class InterestCalculatorController {
+    public String principal { get; set; }
+    public String rate { get; set; }
+    public String time { get; set; }
+    public String result { get; set; }
+
+    public InterestCalculatorController() {
+        principal = '';
+        rate = '';
+        time = '';
+        result = '';
+    }
+
+    public void calculateInterest() {
+        try {
+            Decimal p = Decimal.valueOf(principal);
+            Decimal r = Decimal.valueOf(rate);
+            Decimal t = Decimal.valueOf(time);
+
+            // Simple Interest = (P × R × T) / 100
+            Decimal si = (p * r * t) / 100;
+
+            // Compound Interest = P × ( (1 + R/100)^T ) - P
+            Decimal ci = (p * (Decimal.Math.pow(1 + (r/100), t))) - p;
+
+            result = 'Simple Interest = ' + String.valueOf(si.setScale(2)) + '\n' +
+                     'Compound Interest = ' + String.valueOf(ci.setScale(2));
+        } catch (Exception e) {
+            result = 'Error: ' + e.getMessage();
+        }
+    }
+}
