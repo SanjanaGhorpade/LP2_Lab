@@ -1,0 +1,87 @@
+Scientific calculator
+
+<apex:page controller="ScientificCalculatorController">
+    <apex:form>
+        <apex:pageBlock title="Scientific Calculator">
+            <apex:pageBlockSection columns="1">
+                <apex:outputLabel value="Enter First Number:" />
+                <apex:inputText value="{!input1}" />
+
+                <apex:outputLabel value="Enter Second Number (if required):" />
+                <apex:inputText value="{!input2}" />
+
+                <apex:outputLabel value="Select Operation:" />
+                <apex:selectList value="{!operation}" size="1">
+                    <apex:selectOptions value="{!operationOptions}" />
+                </apex:selectList>
+            </apex:pageBlockSection>
+
+            <apex:commandButton value="Calculate" action="{!calculate}" />
+
+            <apex:pageBlockSection title="Result" rendered="{!NOT(ISNULL(result))}">
+                <apex:outputText value="{!result}" />
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>
+
+
+public class ScientificCalculatorController {
+    public String input1 { get; set; }
+    public String input2 { get; set; }
+    public String operation { get; set; }
+    public String result { get; set; }
+
+    public ScientificCalculatorController() {
+        input1 = '';
+        input2 = '';
+        operation = 'Add';
+        result = '';
+    }
+
+    public List<SelectOption> getOperationOptions() {
+        return new List<SelectOption>{
+            new SelectOption('Add', 'Addition (+)'),
+            new SelectOption('Subtract', 'Subtraction (-)'),
+            new SelectOption('Multiply', 'Multiplication (*)'),
+            new SelectOption('Divide', 'Division (/)'),
+            new SelectOption('Power', 'Exponentiation (x^y)'),
+            new SelectOption('Sqrt', 'Square Root (√x)'),
+            new SelectOption('Sin', 'Sine (sin x)'),
+            new SelectOption('Cos', 'Cosine (cos x)'),
+            new SelectOption('Tan', 'Tangent (tan x)')
+        };
+    }
+
+    public void calculate() {
+        try {
+            Decimal x = Decimal.valueOf(input1);
+            Decimal y = input2 != null && input2.trim() != '' ? Decimal.valueOf(input2) : 0;
+
+            if (operation == 'Add') {
+                result = String.valueOf(x + y);
+            } else if (operation == 'Subtract') {
+                result = String.valueOf(x - y);
+            } else if (operation == 'Multiply') {
+                result = String.valueOf(x * y);
+            } else if (operation == 'Divide') {
+                if (y == 0) result = 'Error: Division by zero';
+                else result = String.valueOf(x / y);
+            } else if (operation == 'Power') {
+                result = String.valueOf(Math.pow(x, y));
+            } else if (operation == 'Sqrt') {
+                result = String.valueOf(Math.sqrt(x));
+            } else if (operation == 'Sin') {
+                result = String.valueOf(Math.sin(Math.toRadians(x)));
+            } else if (operation == 'Cos') {
+                result = String.valueOf(Math.cos(Math.toRadians(x)));
+            } else if (operation == 'Tan') {
+                result = String.valueOf(Math.tan(Math.toRadians(x)));
+            } else {
+                result = 'Invalid operation';
+            }
+        } catch (Exception e) {
+            result = 'Error: ' + e.getMessage();
+        }
+    }
+}
