@@ -1,0 +1,70 @@
+Temperature Conversion
+
+<apex:page controller="TemperatureConverterController">
+    <apex:form>
+        <apex:pageBlock title="Temperature Converter">
+            <apex:pageBlockSection columns="1">
+                <apex:outputLabel value="Enter Temperature:" />
+                <apex:inputText value="{!inputTemp}" />
+
+                <apex:outputLabel value="Convert From:" />
+                <apex:selectList value="{!fromUnit}" size="1">
+                    <apex:selectOptions value="{!units}" />
+                </apex:selectList>
+
+                <apex:outputLabel value="Convert To:" />
+                <apex:selectList value="{!toUnit}" size="1">
+                    <apex:selectOptions value="{!units}" />
+                </apex:selectList>
+            </apex:pageBlockSection>
+
+            <apex:commandButton value="Convert" action="{!convertTemperature}" />
+
+            <apex:pageBlockSection title="Result" rendered="{!NOT(ISNULL(result))}">
+                <apex:outputText value="{!result}" />
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>
+
+
+public class TemperatureConverterController {
+    public String inputTemp { get; set; }
+    public String fromUnit { get; set; }
+    public String toUnit { get; set; }
+    public String result { get; set; }
+
+    public TemperatureConverterController() {
+        inputTemp = '';
+        fromUnit = 'Celsius';
+        toUnit = 'Fahrenheit';
+        result = '';
+    }
+
+    public List<SelectOption> getUnits() {
+        return new List<SelectOption>{
+            new SelectOption('Celsius', 'Celsius'),
+            new SelectOption('Fahrenheit', 'Fahrenheit')
+        };
+    }
+
+    public void convertTemperature() {
+        try {
+            Decimal temp = Decimal.valueOf(inputTemp);
+
+            if (fromUnit == toUnit) {
+                result = 'No conversion needed: ' + inputTemp + '° ' + fromUnit;
+            } else if (fromUnit == 'Celsius' && toUnit == 'Fahrenheit') {
+                Decimal fahrenheit = (temp * 9/5) + 32;
+                result = inputTemp + '°C = ' + String.valueOf(fahrenheit.setScale(2)) + '°F';
+            } else if (fromUnit == 'Fahrenheit' && toUnit == 'Celsius') {
+                Decimal celsius = (temp - 32) * 5/9;
+                result = inputTemp + '°F = ' + String.valueOf(celsius.setScale(2)) + '°C';
+            } else {
+                result = 'Invalid conversion.';
+            }
+        } catch (Exception e) {
+            result = 'Error: ' + e.getMessage();
+        }
+    }
+}
