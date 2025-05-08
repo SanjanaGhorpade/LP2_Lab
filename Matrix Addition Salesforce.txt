@@ -1,0 +1,106 @@
+Matrix Addition Salesforce
+
+
+<apex:page controller="MatrixAddController">
+    <apex:form >
+        <apex:pageBlock title="Matrix Addition">
+           <apex:pageBlockSection >
+               <apex:outputLabel value="Enter matrix A (comma seperated rows , e.g : 1,2;3,4)" />
+               <apex:inputText value="{!matrixA}"/> 
+               
+               <apex:outputLabel value="Enter matrix B (comma seperated rows , e.g : 1,2;3,4)" />
+               <apex:inputText value="{!matrixB}"/> 
+            </apex:pageBlockSection>
+            
+            <apex:commandButton value="Add matrices" action="{!addMatrices}" rerender="resultSection"/>
+            
+             <apex:pageBlockSection id="resultSection">
+                 <apex:outputText value="Result = {!result}" rendered="{!NOT(ISNULL(result))}" escape="false" />
+            
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+    
+</apex:page>
+
+public class MatrixAddController {
+    
+    public String matrixA {get;set;}
+    public String matrixB {get;set;}
+    public String result {get;set;}
+    
+    public MatrixAddController()
+    {
+        matrixA = ' ';
+        matrixB = ' ';
+        result = ' ';
+    }
+    
+    public void addMatrices()
+    {
+        try
+        {
+            List<List<Decimal>> matA = parseMatrix(matrixA);
+            List<List<Decimal>> matB = parseMatrix(matrixB);
+            
+            if(matA.size() != matB.size() || matA[0].size() != matB[0].size())
+            {
+                result = 'Error :matrices must have same dimension ';
+                return;
+            }
+            
+            List<List<Decimal>> sum = new List<List<Decimal>> ();
+            
+            for(Integer i = 0; i < matA.size() ; i++)
+            {
+                List<Decimal> row = new List<Decimal> ();
+                for(Integer j = 0; j < matA[0].size() ; j++)
+                {
+                    row.add(matA[i][j] + matB[i][j]);
+                }
+                sum.add(row);
+            }
+            
+            result = formatMatrix(sum);
+        
+        }
+        catch(Exception e)
+        {
+            result = 'Error parsing matrices . pls ensure proepr format';
+            
+        }
+    }
+    
+    private List<List<Decimal>> parseMatrix(String input)
+    {
+        List<List<Decimal>> matrix = new List<List<Decimal>>();
+        List<String> rows = input.split(';');
+        for(String row : rows)
+        {
+            List<String> elements = row.trim().split(',');
+            List<Decimal> numRow = new List<Decimal>();
+            for(String el : elements)
+            {
+                numRow.add(Decimal.valueOf(el.trim()));
+            }
+            matrix.add(numRow);
+        }
+        return matrix;
+    }
+    
+    private String formatMatrix(List<List<Decimal>> matrix)
+    {
+        String output = '';
+        for(List<Decimal> row : matrix)
+        {
+            for(Decimal d : row)
+            {
+                output += d + ' ';
+            }
+            output += '<br/>';
+        }
+        return output;
+    }
+    
+
+}
