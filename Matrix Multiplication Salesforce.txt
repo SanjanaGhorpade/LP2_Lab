@@ -1,0 +1,109 @@
+Matrix Multiplication Salesforce
+
+<apex:page controller="MatrixMulController">
+    <apex:form >
+        <apex:pageBlock title="Matrix Multiplication">
+            <apex:pageBlockSection >
+                <apex:outputLabel value="Enter matrix A " />
+                <apex:inputText value="{!matrixA}"/>
+                    
+                
+                <apex:outputLabel value="Enter matrix B " />
+                <apex:inputText value="{!matrixB}"/>
+            </apex:pageBlockSection>
+            
+            <apex:commandButton value="Multiply matrices" action="{!multiplyMatrices}"/>
+            
+            <apex:pageBlockSection >
+                <apex:outputText value="Result = {!result}" escape="false" />
+              
+            </apex:pageBlockSection>
+            
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>
+
+
+public class MatrixMulController 
+{
+    public String matrixA {get;set;}
+    public String matrixB {get;set;}
+    public String result {get;set;}
+    
+    public MatrixMulController()
+    {
+        matrixA = '';
+        matrixB = '';
+        result = '';
+    }
+    
+    private List<List<Decimal>> parseMatrix(String input)
+    {
+        List<List<Decimal>> matrix = new List<List<Decimal>> ();
+        List<String> rows = input.split(';');
+        for(String row : rows)
+        {
+             List<String> elements = row.trim().split(',');
+            List<Decimal> numrow = new List<Decimal>();
+            
+            for(String el : elements)
+            {
+                numrow.add(Decimal.valueOf(el.trim()));
+            }
+            matrix.add(numrow);
+        }
+        return matrix;
+    }
+    
+    public void multiplyMatrices()
+    {
+        try
+        {
+            List<List<Decimal>> A = parseMatrix(matrixA);
+            List<List<Decimal>> B = parseMatrix(matrixB);
+            
+            Integer r1 = A.size();
+            Integer c1 = A[0].size();
+            Integer r2 = B.size();
+            Integer c2 = B[0].size();
+            
+            if(c1 != r2)
+            {
+                result = 'Matrix A columns must match Matrix B rows for multiplication.';
+                return;
+            }
+            
+            List<List<Decimal>> C = new List<List<Decimal>>();
+            
+            for(Integer i = 0; i < r1 ; i++)
+            {
+                List<Decimal> row = new List<Decimal> ();
+                for(Integer j = 0; j < c2 ; j++)
+              {
+                    Decimal sum = 0;
+                    for(Integer k = 0; k < c1 ; k++)
+                    {
+                        sum += A[i][k] * B[k][j];
+                    }
+                    row.add(sum);
+                }
+                C.add(row);
+            }
+            
+           
+            for(List<Decimal> row : C)
+            {
+                for(Decimal d : row)
+                {
+                    result += d + ' ';
+                }
+                result += '</br>';
+            }
+        }
+        catch(Exception e)
+        {
+            result = 'Ensure proper format';
+            return;
+        }
+    }
+}
