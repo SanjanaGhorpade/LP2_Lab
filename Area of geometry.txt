@@ -1,0 +1,72 @@
+Area of geometry
+<apex:page controller="GeometryAreaController">
+    <apex:form>
+        <apex:pageBlock title="Geometry Area Calculator">
+            <apex:pageBlockSection columns="1">
+                <apex:outputLabel value="Select Shape:" />
+                <apex:selectList value="{!shape}" size="1">
+                    <apex:selectOptions value="{!shapeOptions}" />
+                </apex:selectList>
+
+                <apex:outputLabel value="Enter First Input (e.g. side, length, base, radius):" />
+                <apex:inputText value="{!input1}" />
+
+                <apex:outputLabel value="Enter Second Input (if required, e.g. width, height):" />
+                <apex:inputText value="{!input2}" />
+            </apex:pageBlockSection>
+
+            <apex:commandButton value="Calculate Area" action="{!calculateArea}" />
+
+            <apex:pageBlockSection title="Result" rendered="{!NOT(ISNULL(result))}">
+                <apex:outputText value="{!result}" />
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>
+
+public class GeometryAreaController {
+    public String shape { get; set; }
+    public String input1 { get; set; }
+    public String input2 { get; set; }
+    public String result { get; set; }
+
+    public GeometryAreaController() {
+        shape = 'Square';
+        input1 = '';
+        input2 = '';
+        result = '';
+    }
+
+    public List<SelectOption> getShapeOptions() {
+        return new List<SelectOption>{
+            new SelectOption('Square', 'Square'),
+            new SelectOption('Rectangle', 'Rectangle'),
+            new SelectOption('Triangle', 'Triangle'),
+            new SelectOption('Circle', 'Circle'),
+            new SelectOption('Trapezium', 'Trapezium')
+        };
+    }
+
+    public void calculateArea() {
+        try {
+            Decimal val1 = Decimal.valueOf(input1);
+            Decimal val2 = (input2 != null && input2.trim() != '') ? Decimal.valueOf(input2) : 0;
+
+            if (shape == 'Square') {
+                result = 'Area of Square = ' + String.valueOf(val1 * val1);
+            } else if (shape == 'Rectangle') {
+                result = 'Area of Rectangle = ' + String.valueOf(val1 * val2);
+            } else if (shape == 'Triangle') {
+                result = 'Area of Triangle = ' + String.valueOf(0.5 * val1 * val2);
+            } else if (shape == 'Circle') {
+                result = 'Area of Circle = ' + String.valueOf(Math.PI * val1 * val1);
+            } else if (shape == 'Trapezium') {
+                result = 'Area of Trapezium = ' + String.valueOf(0.5 * (val1 + val2) * val1); // Assuming val1 as height
+            } else {
+                result = 'Invalid Shape Selected';
+            }
+        } catch (Exception e) {
+            result = 'Error: ' + e.getMessage();
+        }
+    }
+}
